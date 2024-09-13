@@ -1,0 +1,73 @@
+services:
+  # Python Service for Crawling and Data Processing
+  python:
+    image: python:3.9
+    container_name: python
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    networks:
+      - hadoop_network
+    command: bash -c "pip install -r requirements.txt && tail -f /dev/null"
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - hadoop-namenode
+      - spark-master
+
+  # Hadoop Namenode (Master Node)
+  hadoop-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-namenode
+    environment:
+      - CLUSTER_NAME=hadoop_cluster
+    ports:
+      - "9870:9870"  # HDFS web UI
+      - "8088:8088"  # YARN ResourceManager web UI
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    networks:
+      - hadoop_network
+    command: /entrypoint.sh
+
+  # Hadoop Datanode (scalable)
+  hadoop-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    depends_on:
+      - hadoop-namenode
+    networks:
+      - hadoop_network
+
+  # Spark Master Node
+  spark-master:
+    image: bitnami/spark:3.3.1
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "8080:8080"  # Spark Master Web UI
+    networks:
+      - hadoop_network
+
+  # Spark Worker (scalable)
+  spark-worker:
+    image: bitnami/spark:3.3.1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    networks:
+      - hadoop_network
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
+
+networks:
+  hadoop_network:
+    driver: bridge
