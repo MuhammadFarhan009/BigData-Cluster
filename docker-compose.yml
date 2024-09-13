@@ -1,73 +1,105 @@
-services:
-  # Python Service for Crawling and Data Processing
-  python:
-    image: python:3.9
-    container_name: python
-    working_dir: /workspace
-    volumes:
-      - .:/workspace
-    networks:
-      - hadoop_network
-    command: bash -c "pip install -r requirements.txt && tail -f /dev/null"
-    environment:
-      - PYTHONUNBUFFERED=1
-    depends_on:
-      - hadoop-namenode
-      - spark-master
+version: '3.8'
 
-  # Hadoop Namenode (Master Node)
+services:
   hadoop-namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: hadoop-namenode
     environment:
-      - CLUSTER_NAME=hadoop_cluster
+      - CLUSTER_NAME=hadoop-cluster
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
     ports:
-      - "9870:9870"  # HDFS web UI
-      - "8088:8088"  # YARN ResourceManager web UI
-    volumes:
-      - hadoop_namenode:/hadoop/dfs/name
+      - "9870:9870"
     networks:
-      - hadoop_network
-    command: /entrypoint.sh
+      hadoop_network:
+        aliases:
+          - hadoop-namenode
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+    healthcheck:
+      test: curl -f http://localhost:9870 || exit 1
+      interval: 30s
+      retries: 3
 
-  # Hadoop Datanode (scalable)
-  hadoop-datanode:
+  hadoop-datanode-1:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-datanode-1
     environment:
       - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
-    volumes:
-      - hadoop_datanode:/hadoop/dfs/data
-    depends_on:
-      - hadoop-namenode
     networks:
       - hadoop_network
+    volumes:
+      - datanode_data_1:/hadoop/dfs/data
+    depends_on:
+      - hadoop-namenode
+    healthcheck:
+      test: curl -f http://hadoop-namenode:9870 || exit 1
+      interval: 30s
+      retries: 3
 
-  # Spark Master Node
+  hadoop-datanode-2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop-datanode-2
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
+    networks:
+      - hadoop_network
+    volumes:
+      - datanode_data_2:/hadoop/dfs/data
+    depends_on:
+      - hadoop-namenode
+    healthcheck:
+      test: curl -f http://hadoop-namenode:9870 || exit 1
+      interval: 30s
+      retries: 3
+
   spark-master:
     image: bitnami/spark:3.3.1
     container_name: spark-master
     environment:
       - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_IP=spark-master
     ports:
-      - "8080:8080"  # Spark Master Web UI
+      - "8080:8080"
+      - "7077:7077"
     networks:
       - hadoop_network
+    depends_on:
+      - hadoop-namenode
 
-  # Spark Worker (scalable)
-  spark-worker:
+  spark-worker-1:
     image: bitnami/spark:3.3.1
+    container_name: spark-worker-1
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
-    depends_on:
-      - spark-master
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=1G
     networks:
       - hadoop_network
+    depends_on:
+      - spark-master
 
-volumes:
-  hadoop_namenode:
-  hadoop_datanode:
+  spark-worker-2:
+    image: bitnami/spark:3.3.1
+    container_name: spark-worker-2
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=1G
+    networks:
+      - hadoop_network
+    depends_on:
+      - spark-master
+
 
 networks:
   hadoop_network:
     driver: bridge
+
+volumes:
+  namenode_data:
+  datanode_data_1:
+  datanode_data_2:
