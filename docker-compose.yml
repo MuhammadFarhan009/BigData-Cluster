@@ -127,41 +127,40 @@ services:
       - yarn-resourcemanager
     restart: always
 
-  # # Hive Metastore
-  # hive-metastore:
-  #   image: bde2020/hive:2.3.2-postgresql-metastore
-  #   container_name: hive-metastore
-  #   environment:
-  #     - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
-  #     - HIVE_METASTORE_URI=thrift://hive-metastore:9083
-  #   networks:
-  #     hadoop_network:
-  #       aliases:
-  #         - hive-metastore
-  #   depends_on:
-  #     hadoop-namenode:
-  #       condition: service_healthy
-  #   ports:
-  #     - "9083:9083"  # Hive Metastore thrift service
-  #   restart: always
+  # Hive Metastore
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-metastore
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+    networks:
+      hadoop_network:
+        aliases:
+          - hive-metastore
+    depends_on:
+      hadoop-namenode:
+        condition: service_healthy
+    ports:
+      - "9083:9083"  # Hive Metastore thrift service
+    restart: always
 
-  # # Hive Server
-  # hive-server:
-  #   image: bde2020/hive:2.3.2
-  #   container_name: hive-server
-  #   environment:
-  #     - HIVE_METASTORE_URI=thrift://hive-metastore:9083
-  #     - HADOOP_HOME=/opt/hadoop
-  #     - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
-  #   networks:
-  #     hadoop_network:
-  #       aliases:
-  #         - hive-server
-  #   depends_on:
-  #     - hive-metastore
-  #   ports:
-  #     - "10000:10000"  # HiveServer2
-  #   restart: always
+  # Hive Server
+  hive-server:
+    image: bde2020/hive:2.3.2
+    container_name: hive-server
+    environment:
+      - HIVE_METASTORE_URI=thrift://hive-metastore:9083
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
+    networks:
+      hadoop_network:
+        aliases:
+          - hive-server
+    depends_on:
+      - hive-metastore
+    ports:
+      - "10000:10000"  # HiveServer2
+    restart: always
 
   spark-master:
     image: bitnami/spark:3.3.1
@@ -181,7 +180,7 @@ services:
       - hadoop_network
     depends_on:
       - hadoop-namenode
-      # - hive-metastore
+      - hive-metastore
     volumes:
       - ./spark_code:/opt/bitnami/spark/code
     healthcheck:
