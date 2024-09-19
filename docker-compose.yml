@@ -77,7 +77,7 @@ services:
     depends_on:
       - hadoop-namenode
     volumes:
-      - ./spark:/spark
+      - ./spark:/opt/bitnami/spark
 
   spark-worker-1:
     image: bitnami/spark:3.3.1
@@ -92,7 +92,7 @@ services:
     depends_on:
       - spark-master
     volumes:
-      - ./spark:/spark
+      - ./spark:/opt/bitnami/spark
 
   spark-worker-2:
     image: bitnami/spark:3.3.1
@@ -107,7 +107,7 @@ services:
     depends_on:
       - spark-master
     volumes:
-      - ./spark:/spark
+      - ./spark:/opt/bitnami/spark
 
 networks:
   hadoop_network:
