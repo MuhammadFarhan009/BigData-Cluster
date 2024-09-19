@@ -15,7 +15,8 @@ services:
           - hadoop-namenode
     volumes:
       - namenode_data:/hadoop/dfs/name
-      - ./data:/data
+      - ./input:/hadoop/input
+      - ./output:/hadoop/output
     healthcheck:
       test: curl -f http://localhost:9870 || exit 1
       interval: 30s
@@ -36,6 +37,8 @@ services:
     volumes:
       - datanode_data_1:/hadoop/dfs/data
       - ./data:/data
+      - ./input:/hadoop/input
+      - ./output:/hadoop/output
     depends_on:
       hadoop-namenode:
         condition: service_healthy
@@ -61,6 +64,8 @@ services:
     volumes:
       - datanode_data_2:/hadoop/dfs/data
       - ./data:/data
+      - ./input:/hadoop/input
+      - ./output:/hadoop/output
     depends_on:
       hadoop-namenode:
         condition: service_healthy
