@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   hadoop-namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
@@ -173,6 +171,9 @@ services:
       - SPARK_LOCAL_IP=spark-master
       - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
       - SPARK_LOCAL_DIR=/tmp/spark
+      - SPARK_CONF_DIR=/opt/bitnami/spark/conf
+      - SPARK_DRIVER_EXTRA_JAVA_OPTIONS=-Dlog4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
+      - SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS=-Dlog4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
     ports:
       - "8080:8080"  # Spark Master UI
       - "7077:7077"  # Spark Master RPC
@@ -201,6 +202,8 @@ services:
       - SPARK_WORKER_CORES=2
       - SPARK_WORKER_MEMORY=1G
       - SPARK_LOCAL_DIR=/tmp/spark
+      - SPARK_DRIVER_EXTRA_JAVA_OPTIONS=-Dlog4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
+      - SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS=-Dlog4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
     networks:
       - hadoop_network
     depends_on:
@@ -225,6 +228,8 @@ services:
       - SPARK_WORKER_CORES=2
       - SPARK_WORKER_MEMORY=1G
       - SPARK_LOCAL_DIR=/tmp/spark
+      - SPARK_DRIVER_EXTRA_JAVA_OPTIONS=-Dlog4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
+      - SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS=-Dlog4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
     networks:
       - hadoop_network
     depends_on:
