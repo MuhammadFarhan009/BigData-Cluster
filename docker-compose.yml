@@ -13,6 +13,7 @@ services:
           - hadoop-namenode
     volumes:
       - namenode_data:/hadoop/dfs/name
+      - ./data:/data
     healthcheck:
       test: curl -f http://localhost:9870 || exit 1
       interval: 30s
@@ -29,6 +30,7 @@ services:
           - hadoop-datanode-1
     volumes:
       - datanode_data_1:/hadoop/dfs/data
+      - ./data:/data
     depends_on:
       - hadoop-namenode
     ports:
@@ -49,6 +51,7 @@ services:
           - hadoop-datanode-2
     volumes:
       - datanode_data_2:/hadoop/dfs/data
+      - ./data:/data
     depends_on:
       - hadoop-namenode
     ports:
@@ -73,6 +76,8 @@ services:
       - hadoop_network
     depends_on:
       - hadoop-namenode
+    volumes:
+      - ./spark:/spark
 
   spark-worker-1:
     image: bitnami/spark:3.3.1
@@ -86,6 +91,8 @@ services:
       - hadoop_network
     depends_on:
       - spark-master
+    volumes:
+      - ./spark:/spark
 
   spark-worker-2:
     image: bitnami/spark:3.3.1
@@ -99,6 +106,8 @@ services:
       - hadoop_network
     depends_on:
       - spark-master
+    volumes:
+      - ./spark:/spark
 
 networks:
   hadoop_network:

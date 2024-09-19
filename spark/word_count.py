@@ -1,16 +1,21 @@
-from pyspark import SparkConf, SparkContext
+from pyspark.sql import SparkSession
 
-# Create Spark context
-conf = SparkConf().setAppName("WordCount").setMaster("spark://localhost:7077")
-sc = SparkContext(conf=conf)
+# Initialize Spark session
+spark = SparkSession.builder \
+    .appName("HDFS Word Count") \
+    .getOrCreate()
 
-# Load data from HDFS
-data = sc.textFile("hdfs://hadoop-namenode:8020/hdfs/path/file.txt")
+# Read the file from HDFS
+lines = spark.read.text("hdfs://hadoop-namenode:8020/input/test.txt").rdd.map(lambda r: r[0])
 
-# Count words
-words = data.flatMap(lambda line: line.split(" "))
-word_counts = words.map(lambda word: (word, 1)).reduceByKey(lambda a, b: a + b)
+# Perform word count
+word_counts = lines.flatMap(lambda line: line.split(" ")) \
+                   .map(lambda word: (word, 1)) \
+                   .reduceByKey(lambda a, b: a + b)
 
-# Save result to HDFS
-word_counts.saveAsTextFile("hdfs://hadoop-namenode:8020/hdfs/path/word_counts")
-print("Word count completed!")
+# Collect and print the results
+for word, count in word_counts.collect():
+    print(f"{word}: {count}")
+
+# Stop the Spark session
+spark.stop()
