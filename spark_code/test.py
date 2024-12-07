@@ -18,9 +18,8 @@ labels = label_indexer.labels     # This is the mapping of index to label
 
 # Create test data inline
 test_data = [
-    ("emarang call for paper annual international conference on islamic studies aicis banjir peminat panitia mencatat paper didaftarkan diseleksi peserta aicis penulis berasal negara aicis kali uin walisongo semarang februari kegiatan mengangkat tema redefining the roles of religion in addressing human crisis encountering peace justice and human rights issues bersamaan tujuh sub tema didiskusikan akademisi kajian keislaman negeri dirjen pendidikan islam m ali ramdhani tema aicis diangkat respon krisis kemanusiaan global belahan dunia gaza palestina tema aicis kali menarik mengangkat tema meredefinisi peran agama krisis kemanusiaan global pemikiran paparan hasilhasil penelitian akademisi negeri diharapkan sumbangsih peradaban dunia ramdhani jakarta rabu januari direktur perguruan keagamaan islam.",),
-    (" fbi dikutip militer russia today tampang pria berusia disebar luaskan fbi dunia maya dicap salah buronan dicari farahani rekanrekan intelijen iran direkrut menargetkan pejabat mantan pejabat pemerintahan presiden amerika serikat donald trump salah diincar intelijen militer iran mantan menteri negeri as direktur badan intelijen pusat cia mike pompeo nama pompeo masuh daftar pembunuhan intelijen militer iran politisi partai republik amerika serikat salah perancang serangan drone menewaskan soleimani.",),
-    ("The item was okay, but nothing exceptional.",),
+    ("WhatsApp menjelaskan ikon typing bubble itu berlaku baik untuk obrolan individu maupun di dalam grup. Saat lawan bicara mengetik, WhatsApp juga akan menampilkan foto profil di samping typing bubble tersebut.",),
+    
 ]
 
 # Define schema for the test DataFrame
