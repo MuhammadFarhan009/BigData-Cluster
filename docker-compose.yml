@@ -184,6 +184,7 @@ services:
       - hive-metastore
     volumes:
       - ./spark_code:/opt/bitnami/spark/code
+
     healthcheck:
       test: curl -f http://localhost:8080 || exit 1
       interval: 30s
@@ -210,6 +211,7 @@ services:
       - spark-master
     volumes:
       - ./spark_code:/opt/bitnami/spark/code
+
     healthcheck:
       test: curl -f http://spark-master:8080 || exit 1
       interval: 30s
